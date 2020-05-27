@@ -30,7 +30,7 @@ public interface AuditableEntityService<ENTITY extends AuditableEntity> {
         return result.getId();
     }
 
-    default Long updateAuditableEntity(ENTITY entity) {
+	default Long updateAuditableEntity(ENTITY entity) {
         Long previousId = entity.getId();
 
         if (getEntityManager().contains(entity)) {
