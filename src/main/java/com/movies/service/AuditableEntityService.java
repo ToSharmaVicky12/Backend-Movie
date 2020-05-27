@@ -1,6 +1,5 @@
 package com.movies.service;
 
-
 import java.util.Date;
 
 import javax.persistence.EntityManager;
@@ -13,72 +12,73 @@ import com.movies.entity.AuditableEntity;
 import com.movies.entity.AuditableEntityStatus;
 import com.movies.exception.BusinessException;
 
-
 public interface AuditableEntityService<ENTITY extends AuditableEntity> {
 
-    Logger logger = LoggerFactory.getLogger(AuditableEntityService.class);
+	Logger logger = LoggerFactory.getLogger(AuditableEntityService.class);
 
-    ENTITY save(ENTITY entity);
+	ENTITY save(ENTITY entity);
 
-    ENTITY findById(Long id);
+	ENTITY findById(Long id);
 
-    default Long createAuditableEntity(ENTITY entity) {
-        entity.setArchived(Boolean.FALSE);
-        entity.setAuditableStatus(AuditableEntityStatus.CREATED);
-        entity.setLastModifiedDate(new Date());
-        ENTITY result = save(entity);
-        return result.getId();
-    }
+	default Long createAuditableEntity(ENTITY entity) {
+		entity.setArchived(Boolean.FALSE);
+		entity.setAuditableStatus(AuditableEntityStatus.CREATED);
+		entity.setLastModifiedDate(new Date());
+		ENTITY result = save(entity);
+		return result.getId();
+	}
 
 	default Long updateAuditableEntity(ENTITY entity) {
-        Long previousId = entity.getId();
+		Long previousId = entity.getId();
 
-        if (getEntityManager().contains(entity)) {
-            //in case entity is in persistent state - transient copy should be created. Otherwise save will fail
-            //saying that id was altered. Simply detaching entity from entityManager will not work
-            //in case there are OneToMany relations.
-            logger.info("Auditable entity is already persistent, creating a transient clone...");
-            entity = createTransientClone(entity);
-        }
+		if (getEntityManager().contains(entity)) {
+			// in case entity is in persistent state - transient copy should be created.
+			// Otherwise save will fail
+			// saying that id was altered. Simply detaching entity from entityManager will
+			// not work
+			// in case there are OneToMany relations.
+			logger.info("Auditable entity is already persistent, creating a transient clone...");
+			entity = createTransientClone(entity);
+		}
 
-        archiveEntity(previousId);    
-        entity.setId(null);        
-        entity.setArchived(Boolean.FALSE);
-        entity.setAuditableStatus(AuditableEntityStatus.UPDATED);
-        entity.setLastModifiedDate(new Date());        
-        ENTITY previousEntity = findById(previousId);
-               
-        if (previousEntity.getChainId() == null)
-        	entity.setChainId(previousId);
-        else
-        	entity.setChainId(previousEntity.getChainId());
+		archiveEntity(previousId);
+		entity.setId(null);
+		entity.setArchived(Boolean.FALSE);
+		entity.setAuditableStatus(AuditableEntityStatus.UPDATED);
+		entity.setLastModifiedDate(new Date());
+		ENTITY previousEntity = findById(previousId);
 
-        ENTITY result = save(entity);
-        return result.getId();
-    }
+		if (previousEntity.getChainId() == null)
+			entity.setChainId(previousId);
+		else
+			entity.setChainId(previousEntity.getChainId());
 
-    default ENTITY createTransientClone(ENTITY entity) {
-        throw new NotImplementedException("Please implement entity transient state copy creation.");
-    }
+		ENTITY result = save(entity);
+		return result.getId();
+	}
 
-    EntityManager getEntityManager();
+	default ENTITY createTransientClone(ENTITY entity) {
+		throw new NotImplementedException("Please implement entity transient state copy creation.");
+	}
 
-    default void deleteAuditableEntity(final Long entityId) {
-        final ENTITY entity = findById(entityId);
-        entity.setAuditableStatus(AuditableEntityStatus.DELETED);
-        archiveEntity(entity);
-        save(entity);
-    }
+	EntityManager getEntityManager();
 
-    private void archiveEntity(Long id) {
-        archiveEntity(findById(id));
-    }
+	default void deleteAuditableEntity(final Long entityId) {
+		final ENTITY entity = findById(entityId);
+		entity.setAuditableStatus(AuditableEntityStatus.DELETED);
+		archiveEntity(entity);
+		save(entity);
+	}
 
-    private void archiveEntity(ENTITY entity) {
-        if (Boolean.TRUE.equals(entity.getArchived())) {
-            throw new BusinessException("Modified already archived entity with id = " + entity.getId());
-        }
-        entity.setArchived(Boolean.TRUE);
-        save(entity);
-    }
+	private void archiveEntity(Long id) {
+		archiveEntity(findById(id));
+	}
+
+	private void archiveEntity(ENTITY entity) {
+		if (Boolean.TRUE.equals(entity.getArchived())) {
+			throw new BusinessException("Modified already archived entity with id = " + entity.getId());
+		}
+		entity.setArchived(Boolean.TRUE);
+		save(entity);
+	}
 }
