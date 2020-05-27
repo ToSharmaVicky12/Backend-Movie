@@ -11,6 +11,9 @@ import org.springframework.http.HttpStatus;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.movies.dto2entity.ResponseValidationErrorDto;
 import com.movies.exception.ApplicationException;
+import com.movies.exception.BusinessException;
+import com.movies.exception.BusinessExceptionType;
+import com.movies.exception.InternalServerException;
 import com.movies.exception.ValidationException;
 
 
@@ -53,30 +56,30 @@ public class Response<T> {
         return response;
     }
 
-//    @Deprecated
-//    public static <T> Response<T> errorResponse(String error, int statusCode) {
-//        Response<T> response = new Response<>(statusCode, false,
-//                new BusinessException(statusCode == NOT_FOUND ? BusinessException.NOT_FOUND_CODE
-//                        : BusinessException.INTERNAL_SERVER_ERROR_CODE, error),
-//                null);
-//        return response;
-//    }
+    @Deprecated
+   public static <T> Response<T> errorResponse(String error, int statusCode) {
+        Response<T> response = new Response<>(statusCode, false,
+                new BusinessException(statusCode == NOT_FOUND ? BusinessException.NOT_FOUND_CODE
+                        : BusinessException.INTERNAL_SERVER_ERROR_CODE, error),
+                null);
+        return response;
+    }
 
-//    public static Response errorResponse(BusinessException e) {
-//        Response response = new Response(e.getHttpStatus(), false, e, null);
-//        return response;
-//    }
-//
-//    public static Response errorResponse(InternalServerException e) {
-//        Response response = new Response(e.getHttpStatus().value(), false, e, null);
-//        return response;
-//    }
-//
-//    @Deprecated
-//    public static <T> Response<T> errorResponse(BusinessExceptionType errorType) {
-//        Response<T> response = new Response<>(errorType.httpStatus(), false, new BusinessException(errorType), null);
-//        return response;
-//    }
+   public static Response errorResponse(BusinessException e) {
+        Response response = new Response(e.getHttpStatus(), false, e, null);
+        return response;
+    }
+
+    public static Response errorResponse(InternalServerException e) {
+        Response response = new Response(e.getHttpStatus().value(), false, e, null);
+        return response;
+    }
+
+    @Deprecated
+    public static <T> Response<T> errorResponse(BusinessExceptionType errorType) {
+        Response<T> response = new Response<>(errorType.httpStatus(), false, new BusinessException(errorType), null);
+        return response;
+    }
 
     public Response() {
     }

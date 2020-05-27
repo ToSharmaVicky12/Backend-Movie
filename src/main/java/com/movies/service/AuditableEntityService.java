@@ -41,16 +41,17 @@ public interface AuditableEntityService<ENTITY extends AuditableEntity> {
             entity = createTransientClone(entity);
         }
 
-        archiveEntity(previousId);
-        entity.setId(null);
+        archiveEntity(previousId);    
+        entity.setId(null);        
         entity.setArchived(Boolean.FALSE);
         entity.setAuditableStatus(AuditableEntityStatus.UPDATED);
-        entity.setLastModifiedDate(new Date());
+        entity.setLastModifiedDate(new Date());        
         ENTITY previousEntity = findById(previousId);
+               
         if (previousEntity.getChainId() == null)
-            entity.setChainId(previousId);
+        	entity.setChainId(previousId);
         else
-            entity.setChainId(previousEntity.getChainId());
+        	entity.setChainId(previousEntity.getChainId());
 
         ENTITY result = save(entity);
         return result.getId();

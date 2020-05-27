@@ -30,7 +30,7 @@ public class MoviesServiceImpl extends BaseAuditableService<Movies> implements M
 
 	@Override
 	public Movies findById(Long movieId) {
-		return moviesDao.findById(movieId).orElse(null);
+		return moviesDao.findById(movieId).orElse(new Movies());
 	}
 	
 
